@@ -59,6 +59,8 @@ export default class SignUp extends React.Component {
             if(data["s"+dat_a["staffs"][username]]["info"]["password"] == password){
               AsyncStorage.setItem("loggedIn", "true");
               AsyncStorage.setItem("user", JSON.stringify({"username":username, "password":password}));
+              getUserData();
+              getOfficerData();
               this.props.navigation.navigate('Home', {list:[{"name":"Anshul"}]});
               console.log("staff success")
             }
@@ -70,7 +72,8 @@ export default class SignUp extends React.Component {
             if(data["u"+dat_a["users"][username]]["info"]["password"] == password){
               AsyncStorage.setItem("loggedIn", "true");
               AsyncStorage.setItem("user", JSON.stringify({"username":username, "password":password}));
-              //getUserData(username);
+              getUserData();
+              getOfficerData();
               this.props.navigation.navigate('Home', {list:[{"name":"Anshul"}]});
               console.log("user success")
             }
@@ -185,3 +188,57 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   }
 });
+
+function getUserData(){
+  AsyncStorage.getItem("user").then((value) => {
+    temp__ = JSON.parse(value);
+    firebase.database().ref('info').once('value', (data) => {
+      data = data.toJSON();
+        firebase.database().ref('users/u'+data["users"][temp__["username"]]+"/clubs/member").once('value', (dat_a) => {
+            dat_a = dat_a.toJSON();
+            userData = [];
+            firebase.database().ref('clubs').once('value', (d_at_a) => {
+              d_at_a = d_at_a.toJSON();
+              var tempList = [];
+              if(dat_a != undefined){
+                for(i = 0; i < Object.keys(dat_a).length; i++){
+                  tempList.push(dat_a["c"+(i+1)]);
+                }
+                for(i = 0; i < tempList.length; i++){
+                  userData.push(d_at_a["c"+tempList[i]]);
+                }
+              }
+              AsyncStorage.setItem("userData", JSON.stringify(userData));
+            });
+        });
+      
+    });
+  }).done();
+}
+
+function getOfficerData(){
+  AsyncStorage.getItem("user").then((value) => {
+    temp__ = JSON.parse(value);
+    firebase.database().ref('info').once('value', (data) => {
+      data = data.toJSON();
+        firebase.database().ref('users/u'+data["users"][temp__["username"]]+"/clubs/officer").once('value', (dat_a) => {
+            dat_a = dat_a.toJSON();
+            userData = [];
+            firebase.database().ref('clubs').once('value', (d_at_a) => {
+              d_at_a = d_at_a.toJSON();
+              var tempList = [];
+              if(dat_a != undefined){
+                for(i = 0; i < Object.keys(dat_a).length; i++){
+                  tempList.push(dat_a["c"+(i+1)]);
+                }
+                for(i = 0; i < tempList.length; i++){
+                  userData.push(d_at_a["c"+tempList[i]]);
+                }
+              }
+              AsyncStorage.setItem("officerData", JSON.stringify(userData));
+            });
+        });
+      
+  });
+  }).done();
+}

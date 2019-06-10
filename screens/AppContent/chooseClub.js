@@ -4,8 +4,9 @@ import scale from '../../utils/scale'
 import * as firebase from 'firebase'
 import addMember from "../../utils/addMember"
 
-var clubData = [];
+var clubData = require("./staticContent").clubData;
 var recievedData = false;
+var userStuff = require("./staticContent").userStuff
 getClubs()
 
 var temp = {};
@@ -24,6 +25,12 @@ export default class Choose extends React.Component {
     };
   }
 
+  signout = () => {
+    AsyncStorage.setItem("loggedIn", "false");
+    AsyncStorage.setItem("userData", JSON.stringify({}));
+    this.props.navigation.navigate('LogIn');
+  }
+
   getInitialState(){
     return { };
   }
@@ -32,6 +39,9 @@ export default class Choose extends React.Component {
       return (
         <View style={styles.container}>
         <ScrollView style={[{width: Dimensions.get("window").width, marginTop:scale(30, 1)}]}>
+        <TouchableOpacity style={styles.button2} onPress={this.signout}>
+            <Text style={styles.buttonText}>Sign Out</Text>
+          </TouchableOpacity>
         {
             clubData.map((l) => (
               <View style={[styles.card]}>
@@ -41,13 +51,6 @@ export default class Choose extends React.Component {
                     <Text style={styles.description}>{l["description"]}</Text>
                   </View>
                 </View>
-                <Image
-								  source={require(`../../assets/img1.jpg`)}
-								  style={{
-                    width: scale(225, 1),
-                    height: scale(150, 1)
-								  }}
-							  />
                 <TouchableOpacity style={styles.button} onPress={() => {
                   firebase.database().ref('info').once('value', (data) => {
                     data = data.toJSON();
@@ -62,6 +65,14 @@ export default class Choose extends React.Component {
                           }
                           if(exists == false){
                             addMember(temp["username"], l["name"])
+                            Alert.alert(
+                              'Club Joined',
+                              'You have registered for this club',
+                              [
+                                {text: 'OK', onPress: () => console.log('OK Pressed')},
+                              ],
+                              {cancelable: false},
+                            );
                           }
                           else{
                             Alert.alert(
@@ -132,7 +143,20 @@ const styles = StyleSheet.create({
     width: scale(50, 1),
     padding: scale(10, 1),
     fontSize: scale(15, 1),
-    marginTop: scale(30, 1)
+    marginTop: scale(20, 1)
+  },
+  button2: {
+    borderColor: "#474747",
+    borderWidth: 1,
+    borderRadius: 5,
+    width: scale(80, 1),
+    padding: scale(10, 1),
+    fontSize: scale(15, 1),
+    marginTop: scale(20, 1),
+    marginLeft: scale(250, 0)
+  },
+  buttonText: {
+    fontSize: scale(14, 1)
   }
 });
 
@@ -149,4 +173,30 @@ function getClubs(){
             recievedData = true;
         });
     });
+}
+
+function getUserData(){
+  AsyncStorage.getItem("user").then((value) => {
+    temp__ = JSON.parse(value);
+    firebase.database().ref('info').once('value', (data) => {
+      data = data.toJSON();
+      firebase.database().ref('users/u'+data["users"][temp__["username"]]+"/clubs/member").once('value', (dat_a) => {
+          dat_a = dat_a.toJSON();
+          userData = [];
+          firebase.database().ref('clubs').once('value', (d_at_a) => {
+            d_at_a = d_at_a.toJSON();
+            var tempList = [];
+            if(dat_a != undefined){
+              for(i = 0; i < Object.keys(dat_a).length; i++){
+                tempList.push(dat_a["c"+(i+1)]);
+              }
+              for(i = 0; i < tempList.length; i++){
+                userData.push(d_at_a["c"+tempList[i]]);
+              }
+            }
+            AsyncStorage.setItem("userData", JSON.stringify(userData));
+          });
+      });
+  });
+  }).done();
 }

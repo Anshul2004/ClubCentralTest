@@ -5,27 +5,22 @@ import { createMaterialBottomTabNavigator } from 'react-navigation-material-bott
 import tabBarIcon from '../../utils/tabBarIcon'
 import Choose from "./chooseClub"
 import Club from "./createClub"
-import Stats from "./stats"
-var userStuff = require("./staticContent").userStuff
 
 var clubData = [];
-    AsyncStorage.getItem("userData").then((value) => {
+    AsyncStorage.getItem("officerData").then((value) => {
       clubData = JSON.parse(value);
+      console.log(clubData)
       if(clubData == null){
         clubData = [];
       }
     }).done();
 
-class Home extends React.Component {
+export default class Stats extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
         list:[]
       };
-  }
-
-  getInitialState(){
-    return { };
   }
 
   signout = () => {
@@ -45,10 +40,12 @@ class Home extends React.Component {
         {
             clubData.map((l) => (
               <View style={[styles.card]}>
-                <View style={styles.row}>
-                  <View style={[{marginRight:scale(0, 1)}]}>
-                    <Text style={styles.title}>{l["name"]}</Text>
-                    <Text style={styles.description}>{l["description"]}</Text>
+                <View style={[styles.row, {marginRight:scale(50, 1)}]}>
+                  <View style={[{marginRight:scale(20, 1)}]}>
+                    <Text style={[styles.title, {marginRight:scale(50, 1)}]}>{l["name"]}</Text>
+                    <Text style={[styles.description, {marginLeft:scale(20, 1)}]}>Advisors: {l["count"]["advisors"]}</Text>
+                    <Text style={[styles.description, {marginLeft:scale(20, 1)}]}>Officers: {l["count"]["officers"]}</Text>
+                    <Text style={[styles.description, {marginLeft:scale(20, 1)}]}>Members: {l["count"]["members"]}</Text>
                   </View>
                 </View>
               </View>
@@ -70,11 +67,12 @@ const styles = StyleSheet.create({
     width: scale(375, 0)
   },
   title: {
-    fontSize: scale(20, 1)
+    fontSize: scale(20, 1),
+    marginBottom: scale(20, 1)
   },
   description: {
     fontSize: scale(15, 1),
-    margin: scale(20, 1),
+    margin: scale(10, 1),
     marginLeft: scale(0, 0),
     lineHeight: scale(25, 1),
     fontWeight: "100"
@@ -109,39 +107,3 @@ const styles = StyleSheet.create({
     fontSize: scale(14, 1)
   }
 });
-
-export default createMaterialBottomTabNavigator(
-  {
-    Home: {
-      screen: Home,
-      navigationOptions: {
-        tabBarLabel: "Home",
-        tabBarIcon: tabBarIcon("home")
-      },
-    },
-    Choose: {
-      screen: Choose,
-      navigationOptions: {
-        tabBarLabel: "Clubs",
-        tabBarIcon: tabBarIcon("event-note")
-      },
-    },
-    Club: {
-      screen: Club,
-      navigationOptions: {
-        tabBarLabel: "Create",
-        tabBarIcon: tabBarIcon("edit")
-      },
-    },
-    Stats: {
-      screen: Stats,
-      navigationOptions: {
-        tabBarLabel: "Stats",
-        tabBarIcon: tabBarIcon("insert-chart")
-      },
-    },
-  },
-  {
-    barStyle: { backgroundColor: "#f3f3f3" }
-  }
-)

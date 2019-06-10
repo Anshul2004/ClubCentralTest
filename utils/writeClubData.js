@@ -2,6 +2,7 @@ import * as firebase from 'firebase'
 
 //Database Configuration
 import firebaseConfig from '../private/databaseConfig'
+import { Alert } from 'react-native';
 
 export default function writeClubData(advisors, officers, description, name){
     firebase.database().ref('clubs').once('value', (data) => {
@@ -60,12 +61,17 @@ export default function writeClubData(advisors, officers, description, name){
                     clubs_dict["c1"] = Object.keys(data).length+1
                     firebase.database().ref('staffs/s'+temp+'/clubs').set(clubs_dict);
                   }
-                  if(dat_a["s"+temp]["count"]["clubs"] != undefined){
-                    firebase.database().ref('staffs/s'+temp+'/count/clubs').set(dat_a["s"+temp]["count"]["clubs"] + 1);
-                  }
-                  else{
-                    firebase.database().ref('staffs/s'+temp+'/count/clubs').set(1);
-                  }
+                  //if(dat_a["s"+temp]["count"] != undefined){
+                    if(dat_a["s"+temp]["count"]["clubs"] != undefined){
+                      firebase.database().ref('staffs/s'+temp+'/count/clubs').set(dat_a["s"+temp]["count"]["clubs"] + 1);
+                    }
+                    else{
+                      firebase.database().ref('staffs/s'+temp+'/count/clubs').set(1);
+                    }
+                  //}
+                  //else{
+                    //firebase.database().ref('staffs/s'+temp+'/count/clubs').set(1);
+                  //}
                 });
               }
               firebase.database().ref('users').once('value', (d_at_a) => {
@@ -112,6 +118,14 @@ export default function writeClubData(advisors, officers, description, name){
                     firebase.database().ref('users/u'+ temp +'/clubs/member').set(d_at_a["u"+temp]["clubs"]["member"]);
                   }
                 }
+                Alert.alert(
+                  'Club Created',
+                  'You have created a club',
+                  [
+                    {text: 'OK', onPress: () => console.log('OK Pressed')},
+                  ],
+                  {cancelable: false},
+                );
               });
               firebase.database().ref('info/count/clubs').set(Object.keys(data).length);
             }

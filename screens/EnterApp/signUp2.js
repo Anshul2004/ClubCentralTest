@@ -2,7 +2,6 @@ import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableWithoutFeedback, Keyboard, TouchableOpacity, Image, KeyboardAvoidingView, AsyncStorage } from 'react-native';
 import scale from '../../utils/scale'
 import writeUserData from "../../utils/writeUserData"
-import getUserData from "../../utils/getUserData"
 import * as firebase from 'firebase'
 
 const DismissKeyboard = ({ children }) => (
@@ -38,9 +37,11 @@ export default class SignUp2 extends React.Component {
   }
 
   signup = () => {
-    writeUserData(this.state.username, this.state.email.replace(".", ","), "staff", this.state.input3, this.state.first, this.state.last, this.state.input6.toLowerCase(), this.state.input7.toLowerCase())
+    writeUserData(this.state.username, this.state.email.replace(".", ","), "user", this.state.input3, this.state.first, this.state.last, this.state.input6.toLowerCase(), this.state.input7.toLowerCase())
     AsyncStorage.setItem("loggedIn", "true");
     AsyncStorage.setItem("user", JSON.stringify({"username":this.state.username, "password":this.state.input3}));
+    getUserData();
+    getOfficerData();
     this.props.navigation.navigate('Home')
   }
 
@@ -85,7 +86,6 @@ export default class SignUp2 extends React.Component {
                     placeholder="School"
                     autoCapitalize = 'none'
                     onChangeText={(text) => this.setState({input6: text})}
-                    secureTextEntry={true}
                     />
 
                   {/*Grade*/}
@@ -94,7 +94,6 @@ export default class SignUp2 extends React.Component {
                     placeholder="Grade"
                     autoCapitalize = 'none'
                     onChangeText={(text) => this.setState({input7: text})}
-                    secureTextEntry={true}
                     />
                 </View>
 
@@ -168,3 +167,57 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   }
 });
+
+function getUserData(){
+  AsyncStorage.getItem("user").then((value) => {
+    temp__ = JSON.parse(value);
+    firebase.database().ref('info').once('value', (data) => {
+      data = data.toJSON();
+        firebase.database().ref('users/u'+data["users"][temp__["username"]]+"/clubs/member").once('value', (dat_a) => {
+            dat_a = dat_a.toJSON();
+            userData = [];
+            firebase.database().ref('clubs').once('value', (d_at_a) => {
+              d_at_a = d_at_a.toJSON();
+              var tempList = [];
+              if(dat_a != undefined){
+                for(i = 0; i < Object.keys(dat_a).length; i++){
+                  tempList.push(dat_a["c"+(i+1)]);
+                }
+                for(i = 0; i < tempList.length; i++){
+                  userData.push(d_at_a["c"+tempList[i]]);
+                }
+              }
+              AsyncStorage.setItem("userData", JSON.stringify(userData));
+            });
+        });
+      
+    });
+  }).done();
+}
+
+function getOfficerData(){
+  AsyncStorage.getItem("user").then((value) => {
+    temp__ = JSON.parse(value);
+    firebase.database().ref('info').once('value', (data) => {
+      data = data.toJSON();
+        firebase.database().ref('users/u'+data["users"][temp__["username"]]+"/clubs/officer").once('value', (dat_a) => {
+            dat_a = dat_a.toJSON();
+            userData = [];
+            firebase.database().ref('clubs').once('value', (d_at_a) => {
+              d_at_a = d_at_a.toJSON();
+              var tempList = [];
+              if(dat_a != undefined){
+                for(i = 0; i < Object.keys(dat_a).length; i++){
+                  tempList.push(dat_a["c"+(i+1)]);
+                }
+                for(i = 0; i < tempList.length; i++){
+                  userData.push(d_at_a["c"+tempList[i]]);
+                }
+              }
+              AsyncStorage.setItem("officerData", JSON.stringify(userData));
+            });
+        });
+      
+  });
+  }).done();
+}

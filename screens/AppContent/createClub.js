@@ -5,6 +5,7 @@ import { createMaterialBottomTabNavigator } from 'react-navigation-material-bott
 import tabBarIcon from '../../utils/tabBarIcon'
 import Choose from "./chooseClub"
 import writeClubData from "../../utils/writeClubData"
+var clubData = require("./staticContent").clubData;
 
 //writeClubData([{"firstName":"Adam", "lastName":"Brown"}], [{"firstName":"eugene", "lastName":"chou"}], "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", "TestClub2");
 
@@ -33,12 +34,19 @@ export default class Club extends React.Component {
     };
   }
 
+  signout = () => {
+    AsyncStorage.setItem("loggedIn", "false");
+    AsyncStorage.setItem("userData", JSON.stringify({}));
+    this.props.navigation.navigate('LogIn');
+  }
+
   getInitialState(){
     return { };
   }
 
   create = () => {
     writeClubData([{"firstName":this.state.input1, "lastName":this.state.input2}], [{"firstName":this.state.input3, "lastName":this.state.input4}], this.state.input6, this.state.input5);
+    clubData.push({"name":this.state.input5, "description":this.state.input6})
   }
 
   render() {
@@ -47,7 +55,10 @@ export default class Club extends React.Component {
         <DismissKeyboard>
         <View style={styles.container}>
         <KeyboardAvoidingView keyboardVerticalOffset={-scale(120, 1)} behavior={"position"} enabled>
-        <View style={[styles.container, {marginTop:scale(20, 1)}]}>
+        <TouchableOpacity style={styles.button2} onPress={this.signout}>
+            <Text style={styles.buttonText}>Sign Out</Text>
+          </TouchableOpacity>
+        <View style={[styles.container, {marginTop:scale(0, 1)}]}>
             <View>
                 <Text style={styles.title}>Advisor Info:</Text>
                 <View style={styles.row}>
@@ -155,4 +166,17 @@ const styles = StyleSheet.create({
     marginTop: scale(20, 1),
     marginBottom: scale(0, 1)
   },
+  button2: {
+    borderColor: "#474747",
+    borderWidth: 1,
+    borderRadius: 5,
+    width: scale(80, 1),
+    padding: scale(10, 1),
+    fontSize: scale(15, 1),
+    marginTop: scale(50, 1),
+    marginLeft: scale(250, 0)
+  },
+  buttonText: {
+    fontSize: scale(14, 1)
+  }
 });

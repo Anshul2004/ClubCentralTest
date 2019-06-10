@@ -8,14 +8,14 @@
       "ios",
       "android"
     ],
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "version": "1.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon1.png",
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -23,7 +23,15 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
-    }
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cyber.clubcentral",
+      "buildNumber": "1"
+    },
+    "android": {
+      "package": "com.cyber.clubcentral",
+      "versionCode": 2,
+      "permissions":[]
+    },
+    "description": "Club Central is an application developed by Dublin High students. This application allows students to easily sign up for the clubs they are interested in. They can view a list of clubs at their school with just their phone and sign up for those clubs as well. This app also allows club officers to efficiently keep track of their members as well."
   }
 }
